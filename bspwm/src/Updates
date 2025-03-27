@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+#  ╔═╗╦═╗╔═╗╦ ╦  ╦ ╦╔═╗╔╦╗╔═╗╔╦╗╔═╗╔═╗
+#  ╠═╣╠╦╝║  ╠═╣  ║ ║╠═╝ ║║╠═╣ ║ ║╣ ╚═╗
+#  ╩ ╩╩╚═╚═╝╩ ╩  ╚═╝╩  ═╩╝╩ ╩ ╩ ╚═╝╚═╝
+# Script to check for new updates in arch and AUR. Copyright 2023 gh0stzk
+# Author: z0mbi3
+# url: https://github.com/gh0stzk
+
+# Color variables
+RESET="\033[0m"
+BOLD="\033[1m"
+BLUE="${BOLD}\033[34m"
+GREEN="${BOLD}\033[32m"
+YELLOW="${BOLD}\033[33m"
+
+# Check for required dependencies
+check_dependencies() {
+	command -v checkupdates >/dev/null 2>&1 || {
+		echo -e "${RED}Error: 'checkupdates' is not installed.${RESET}" >&2
+		exit 1
+	}
+	command -v paru >/dev/null 2>&1 || {
+		echo -e "${RED}Error: 'paru' is not installed.${RESET}" >&2
+		exit 1
+	}
+}
+
+get_total_updates() {
+	local total_updates
+	total_updates=$(($(checkupdates 2>/dev/null | wc -l || echo 0) + $(paru -Qua 2>/dev/null | wc -l || echo 0)))
+	echo "${total_updates:-0}"
+}
+
+get_list_updates() {
+	echo -e "${BLUE}Regular updates:${RESET}"
+	checkupdates 2>/dev/null | sed 's/->/\x1b[32;1m\x1b[0m/g' || echo "No regular updates available."
+}
+
+get_list_aur_updates() {
+	echo -e "\n${BLUE}Aur updates available:${RESET}"
+	paru -Qua 2>/dev/null | sed 's/->/\x1b[32;1m\x1b[0m/g' || echo "No AUR updates available."
+}
+
+print_updates() {
+	local print_updates
+	print_updates=$(get_total_updates)
+
+	if [[ "$print_updates" -gt 0 ]]; then
+		echo -e "${YELLOW}There are $print_updates updates available:${RESET}\n"
+		get_list_updates
+		get_list_aur_updates
+	else
+		echo -e "${GREEN}Your system is already updated!${RESET}"
+	fi
+}
+
+update_system() {
+	echo -e "${BLUE}Starting system update...${RESET}"
+	paru -Syu --nocombinedupgrade | lolcat
+}
+
+# Verify dependencies before executing
+check_dependencies
+
+case "$1" in
+--get-updates) get_total_updates ;;
+--print-updates) print_updates ;;
+--update-system) update_system ;;
+--help | *) echo -e "${BOLD}Updates [options]${RESET}
+
+Options:
+	--get-updates		Get the number of updates available.
+	--print-updates		Print the number of available packages to update.
+	--update-system		Update your system including the AUR packages.\n" ;;
+esac

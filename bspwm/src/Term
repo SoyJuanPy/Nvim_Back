@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+#  ████████╗███████╗██████╗ ███╗   ███╗██╗███╗   ██╗ █████╗ ██╗
+#  ╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██║████╗  ██║██╔══██╗██║
+#     ██║   █████╗  ██████╔╝██╔████╔██║██║██╔██╗ ██║███████║██║
+#     ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║██║
+#     ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████╗
+#     ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝
+#   Script to open with selected terminal
+#   Author: z0mbi3
+#   url: https://github.com/gh0stzk/dotfiles
+
+CFG_TERM="$HOME/.config/bspwm/src/.term"
+DEFAULT_TERM="wezterm"
+ROFI_THEME="$HOME/.config/bspwm/src/rofi-themes/TermSelector.rasi"
+
+# Creating config file if not exists.
+[ ! -f "$CFG_TERM" ] && echo "$DEFAULT_TERM" >"$CFG_TERM"
+
+# Main var
+MY_TERM=$(<"$CFG_TERM")
+
+# Function to choose the terminal using rofi
+choose_terminal() {
+	local options=("Wezterm" "Kitty")
+	local current_term=$(tr '[:upper:]' '[:lower:]' <"$CFG_TERM")
+
+	local selected_index=$(printf '%s\n' "${options[@],,}" | awk -v cur="$current_term" '$0==cur {print NR-1; exit}')
+
+	local chosen
+	chosen=$(printf '%s\n' "${options[@]}" | rofi -theme "$ROFI_THEME" -mesg "[ Your current terminal is $MY_TERM ]" -dmenu -selected-row "$selected_index")
+
+	[[ -n "$chosen" ]] && echo "${chosen,,}" >"$CFG_TERM"
+}
+
+# Terminal selector
+[ "$1" = "--selecterm" ] && choose_terminal
+
+# Launch the terminal with appropriate options
+case $MY_TERM in
+"wezterm")
+	case $1 in
+	"--terminal")
+		wezterm
+		;;
+	"--floating")
+		wezterm --class=FloaTerm
+		;;
+	"--update")
+		kitty --hold --class=FloaTerm -e Updates --update-system
+		;;
+	"--checkupdates")
+		wezterm --hold --class=Updating -e Updates --print-updates
+		;;
+	"--yazi")
+		wezterm --hold --name=YaziTerm --class=FloaTerm -e yazi
+		;;
+	"--nvim")
+		wezterm -e nvim
+		;;
+	"--music")
+		wezterm --name=MusicTerm --class=FloaTerm -e ncmpcpp
+		;;
+	"--fetch")
+		wezterm --name=FetchTerm --class=FloaTerm -e ~/.local/bin/sysfetch
+		;;
+	esac
+	;;
+"kitty")
+	case $1 in
+	"--terminal")
+		kitty
+		;;
+	"--floating")
+		kitty --class=FloaTerm
+		;;
+	"--update")
+		kitty --hold --class=FloaTerm -e Updates --update-system
+		;;
+	"--checkupdates")
+		kitty --hold --class=Updating -e Updates --print-updates
+		;;
+	"--yazi")
+		kitty --hold --name=YaziTerm --class=FloaTerm -e yazi
+		;;
+	"--nvim")
+		kitty -e nvim
+		;;
+	"--music")
+		kitty --name=MusicTerm --class=FloaTerm -e ncmpcpp
+		;;
+	"--fetch")
+		kitty --name=FetchTerm --class=FloaTerm -e ~/.local/bin/sysfetch
+		;;
+	esac
+	;;
+esac

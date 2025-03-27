@@ -1,0 +1,129 @@
+format = """\
+($directory)\
+$os\
+$git_branch\
+$fill\
+$nodejs\
+$rust\
+$golang\
+$php\
+$bun\
+$java\
+$c\
+$conda\
+$zig\
+$python\
+$cmd_duration\
+$time\
+\n$character\
+"""
+# Disable the blank line arrowt the beginning of the prompt
+add_newline = false
+
+# Command timeout
+command_timeout = 3600000
+
+# color and style settings
+palette = "sakura"
+
+[fill]
+symbol = '  '
+
+[palettes.sakura]
+arrow = "#c58ea7"      # ia: pink
+os = "#878fb9"         # va: blue
+directory = "#878fb9"  # ca: purple
+git = "#c58ea7"        # ia: pink
+duration = "#9e97d0"   # ca: purple
+text_color = "#c5a3a9" # na: text
+text_light = "#1c1a1c" # bl: background
+
+[character]
+success_symbol = "[ :$user](fg:#85B5BA)"
+error_symbol = "[ :$user](fg:red)"
+
+[username]
+style_user = 'bold os'
+style_root = 'bold os_admin'
+format = '[ :$user](fg:$style) '
+disabled = false
+show_always = true
+
+
+[directory]
+format = "[$path](bold $style)[$read_only]($read_only_style) "
+truncation_length = 2
+style = "fg:directory"
+read_only_style = "fg:directory"
+before_repo_root_style = "fg:directory"
+truncation_symbol = "/"
+truncate_to_repo = true
+read_only = "  "
+
+
+[cmd_duration]
+format = "took [󱎫 $duration]($style) "
+style = "bold fg:duration"
+min_time = 500
+
+[git_branch]
+format = '  [($symbol$branch)]($style)'
+style = "bold fg:git"
+symbol = " "      
+
+[git_status]
+format = '[$all_status$ahead_behind ]($style)'
+style = "fg:text_color bg:git"
+
+[docker_context]
+disabled = true
+symbol = " "
+
+[python]
+disabled = false
+format = '[${symbol}${pyenv_prefix}(${version})( \($virtualenv\))](fg:#FF9E3B)($style)'
+symbol = " "
+version_format = "${raw}"
+
+[java]
+format = '[[ $symbol ($version) ](fg:#FF5D62)]($style)'
+version_format = "${raw}"
+symbol = ""
+disabled = false
+
+[c]
+format = '[[ $symbol ($version) ](fg:#7FB4CA)]($style)'
+symbol = " "
+version_format = "${raw}"
+disabled = false
+
+[zig]
+format = '[[ $symbol ($version) ](fg:#FFA066)]($style)'
+version_format = "${raw}"
+disabled = false
+
+[bun]
+version_format = "${raw}"
+format = '[[$symbol($version) ](fg:#DCD7BA)]($style)'
+disabled = false
+
+[nodejs]
+symbol = "󰎙"
+format = '[[ $symbol ($version) ](fg:#87a987)]($style)'
+
+[rust]
+symbol = ""
+format = '[[ $symbol ($version) ](fg:#FF5D62)]($style)'
+
+[golang]
+symbol = ""
+format = '[[ $symbol ($version) ](fg:#7FB4CA)]($style)'
+
+[php]
+symbol = ""
+format = '[[ $symbol ($version) ](fg:#FF9E3B)]($style)'
+
+[time]
+disabled = false
+time_format = "%R"  # Hour:Minute Format
+format = '[[  $time ](fg:#8BA4B0)]($style)'
