@@ -1,5 +1,3 @@
-// Rofi colors for Daniela
-
 * {
     font: "JetBrainsMono NF Bold 9";
     background: #181825;
@@ -10,5 +8,5 @@
     active: #A6E3A1;
     urgent: #F38BA8;
 
-    img-background: url("~/.config/bspwm/rices/Desktop-05/rofi.webp", width);
+    img-background: url("~/.config/bspwm/rices/daniela/rofi.webp", width);
 }

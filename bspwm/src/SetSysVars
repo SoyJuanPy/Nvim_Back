@@ -1,63 +1,73 @@
-#!/usr/bin/env bash
-#  ███████╗██╗   ██╗███████╗████████╗███████╗███╗   ███╗    ██╗   ██╗ █████╗ ██████╗ ███████╗
-#  ██╔════╝╚██╗ ██╔╝██╔════╝╚══██╔══╝██╔════╝████╗ ████║    ██║   ██║██╔══██╗██╔══██╗██╔════╝
-#  ███████╗ ╚████╔╝ ███████╗   ██║   █████╗  ██╔████╔██║    ██║   ██║███████║██████╔╝███████╗
-#  ╚════██║  ╚██╔╝  ╚════██║   ██║   ██╔══╝  ██║╚██╔╝██║    ╚██╗ ██╔╝██╔══██║██╔══██╗╚════██║
-#  ███████║   ██║   ███████║   ██║   ███████╗██║ ╚═╝ ██║     ╚████╔╝ ██║  ██║██║  ██║███████║
-#  ╚══════╝   ╚═╝   ╚══════╝   ╚═╝   ╚══════╝╚═╝     ╚═╝      ╚═══╝  ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝
-
+#!/bin/sh
+# =============================================================
+# Author:  gh0stzk
+# Repo:    https://github.com/gh0stzk/dotfiles
+# Date:    02.02.2025 08:44:12
+#
+# SetSysVars - Automated System Configuration for BSPWM
+# Features:
+#   ✔ Sets up variables for Polybar integration.
+#      * Sets up network interfaces
+#      * Sets up graphics card
+#      * Sets up power supply
+#   ✔ Creates a lock file after first execution
+# Dependencies:
+#   → Core: awk, grep, sed, iproute2 (All in Arch base)
+#
+# Copyright (C) 2021-2025 gh0stzk <z0mbi3.zk@protonmail.com>
+# Licensed under GPL-3.0 license
+# =============================================================
 
 CONFIG_FILE="$HOME/.config/bspwm/src/config/system.ini"
 SFILE="$HOME/.config/bspwm/src/.sys"
 
-# Check if the .sys file already exists
-[[ -f "$SFILE" ]] && exit 0 # The file exists, exit without doing anything
+[ -f "$SFILE" ] && exit 0 # The file exists, exit without doing anything
 
-# Function to get and set values
-function setup_system_vars() {
-    # Network interfaces (primary and secondary)
-    # readarray -t ALL_NET < <(ip -o link show up | awk -F': ' '{print $2}' | grep -vE '^(lo|docker|veth|br-)')
+setup_system_vars() {
+    # Primary Network Interface Detection
+    primary_net=$(ip link | awk '/state UP/ {print $2}' | tr -d :)
 
-	PRIMARY_NET=$(ip -o route get 1 | awk '{print $5; exit}')
-	#SECONDARY_NET=$(printf '%s\n' "${ALL_NET[@]}" | grep -v "$PRIMARY_NET" | head -n1)
+    # Graphics card detection
+    card=""
+    for entry in /sys/class/backlight/*; do
+        if [ -d "$entry" ]; then
+            card=$(basename "$entry")
+            break
+        fi
+    done
 
-    [[ -n "$PRIMARY_NET" ]] && sed -i "s/sys_network_interface = .*/sys_network_interface = $PRIMARY_NET/" "$CONFIG_FILE"
-    # [[ -n "$SECONDARY_NET" ]] && sed -i "s/sys_network_interface2 = .*/sys_network_interface2 = $SECONDARY_NET/" "$CONFIG_FILE"
+    # Battery and adapter detection
+    battery=""
+    for entry in /sys/class/power_supply/*; do
+        entry_name=$(basename "$entry")
+        case "$entry_name" in
+            *BAT*) battery="$entry_name"; break ;;
+        esac
+    done
 
-    # Graphics card (backlight)
-    CARD=$(find /sys/class/backlight -maxdepth 1 -type l | head -n1 | xargs basename)
-    [[ -n "$CARD" ]] && sed -i "s/sys_graphics_card = .*/sys_graphics_card = $CARD/" "$CONFIG_FILE"
+    adapter=""
+    for entry in /sys/class/power_supply/*; do
+        entry_name=$(basename "$entry")
+        case "$entry_name" in
+            *AC*|*ADP*) adapter="$entry_name"; break ;;
+        esac
+    done
 
-    # Battery and adapter
-    BATTERY=$(find /sys/class/power_supply -maxdepth 1 -type l -name "BAT*" | head -n1 | xargs basename)
-    ADAPTER=$(find /sys/class/power_supply -maxdepth 1 -type l -name "A[CD]*" | head -n1 | xargs basename)
-
-    [[ -n "$BATTERY" ]] && sed -i "s/sys_battery = .*/sys_battery = $BATTERY/" "$CONFIG_FILE"
-    [[ -n "$ADAPTER" ]] && sed -i "s/sys_adapter = .*/sys_adapter = $ADAPTER/" "$CONFIG_FILE"
-
-    # trying to determine the best font size, based on your resolution.
-    read -r screen_width screen_height < <(xdpyinfo | awk '/dimensions:/ {print $2}' | tr 'x' ' ')
-
-    if [ "$screen_width" -le 1366 ] && [ "$screen_height" -le 768 ]; then
-		font_size=9
-	elif [ "$screen_width" -le 1600 ] && [ "$screen_height" -le 900 ]; then
-		font_size=10
-	elif [ "$screen_width" -le 1920 ] && [ "$screen_height" -le 1080 ]; then
-		font_size=10
-	elif [ "$screen_width" -le 2560 ] && [ "$screen_height" -le 1440 ]; then
-		font_size=11
-	elif [ "$screen_width" -le 3840 ] && [ "$screen_height" -le 2160 ]; then
-		font_size=12
-	else
-		font_size=10
-	fi
-
-    sed -i "s/size = [0-9]*/size = $font_size/" ~/.config/alacritty/fonts.toml
-    sed -i "s/font_size [0-9]*/font_size $font_size/" ~/.config/kitty/kitty.conf
+    # Atomic update of the configuration file
+    tmpfile=$(mktemp)
+    awk -v net="$primary_net" \
+        -v card="$card" \
+        -v bat="$battery" \
+        -v adap="$adapter" '
+        /^sys_network_interface =/ {$0="sys_network_interface = " net}
+        /^sys_graphics_card =/ {$0="sys_graphics_card = " card}
+        /^sys_battery =/ {$0="sys_battery = " bat}
+        /^sys_adapter =/ {$0="sys_adapter = " adap}
+        {print}
+    ' "$CONFIG_FILE" > "$tmpfile" && mv "$tmpfile" "$CONFIG_FILE"
 }
 
-# Ejecutar la configuración
+# Main execution
+sleep 3
 setup_system_vars
-
-# Crear el archivo .sys para indicar que la configuración ya se ha realizado
 touch "$SFILE"
