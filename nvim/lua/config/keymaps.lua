@@ -64,6 +64,18 @@ vim.api.nvim_set_keymap("x", "<A-k>", "<Nop>", { noremap = true, silent = true }
 vim.api.nvim_set_keymap("x", "J", "<Nop>", { noremap = true, silent = true })
 vim.api.nvim_set_keymap("x", "K", "<Nop>", { noremap = true, silent = true })
 
+--Neogit
+vim.keymap.set("n", "gh", ":Neogit<CR>", opts)
+--gitview
+
+vim.keymap.set("n", "gH", ":DiffviewFileHistory<CR>", opts)
+vim.keymap.set("n", "gv", function()
+  if next(require("diffview.lib").get_views()) == nil then
+    vim.cmd("DiffviewOpen")
+  else
+    vim.cmd("DiffviewClose")
+  end
+end, opts)
 -- Redefine Ctrl+s to save with the custom function
 vim.api.nvim_set_keymap("n", "<C-s>", ":lua SaveFile()<CR>", { noremap = true, silent = true })
 
