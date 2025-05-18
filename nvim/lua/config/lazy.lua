@@ -1,5 +1,6 @@
 -- This file contains the configuration for setting up the lazy.nvim plugin manager in Neovim.
-
+vim.opt.spell = true
+vim.opt.spelllang = { "en" }
 -- Define the path to the lazy.nvim plugin
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 
@@ -63,12 +64,15 @@ require("lazy").setup({
     { import = "lazyvim.plugins.extras.lang.typescript" },
 
     -- Coding plugins
-    { import = "lazyvim.plugins.extras.coding.mini-surround" },
+    { import = "lazyvim.plugins.extras.lang.angular" },
+    { import = "lazyvim.plugins.extras.lang.astro" },
+    { import = "lazyvim.plugins.extras.lang.go" },
+    { import = "lazyvim.plugins.extras.lang.nix" },
+    { import = "lazyvim.plugins.extras.lang.toml" },
 
     -- Utility plugins
     { import = "lazyvim.plugins.extras.util.mini-hipatterns" },
-
-    -- AI plugins
+    { import = "lazyvim.plugins.extras.coding.mini-surround" },
     { import = "lazyvim.plugins.extras.ai.copilot-chat" },
 
     -- Import/override with your plugins

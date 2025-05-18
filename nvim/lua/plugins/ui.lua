@@ -1,4 +1,47 @@
 -- This file contains the configuration for various UI-related plugins in Neovim.
+local mode = {
+  "mode",
+  fmt = function(s)
+    local mode_map = {
+      ["NORMAL"] = "N",
+      ["O-PENDING"] = "N?",
+      ["INSERT"] = "I",
+      ["VISUAL"] = "V",
+      ["V-BLOCK"] = "VB",
+      ["V-LINE"] = "VL",
+      ["V-REPLACE"] = "VR",
+      ["REPLACE"] = "R",
+      ["COMMAND"] = "!",
+      ["SHELL"] = "SH",
+      ["TERMINAL"] = "T",
+      ["EX"] = "X",
+      ["S-BLOCK"] = "SB",
+      ["S-LINE"] = "SL",
+      ["SELECT"] = "S",
+      ["CONFIRM"] = "Y?",
+      ["MORE"] = "M",
+    }
+    return mode_map[s] or s
+  end,
+}
+
+local function codecompanion_adapter_name()
+  local chat = require("codecompanion").buf_get_chat(vim.api.nvim_get_current_buf())
+  if not chat then
+    return nil
+  end
+
+  return " " .. chat.adapter.formatted_name
+end
+
+local function codecompanion_current_model_name()
+  local chat = require("codecompanion").buf_get_chat(vim.api.nvim_get_current_buf())
+  if not chat then
+    return nil
+  end
+
+  return chat.settings.model
+end
 return {
   -- Plugin: folke/todo-comments.nvim
   -- URL: https://github.com/folke/todo-comments.nvim
@@ -7,6 +50,71 @@ return {
 
   {
     "folke/todo-comments.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {
+      signs = true, -- show icons in the signs column
+      sign_priority = 6, -- sign priority
+      -- keywords recognized as todo comments
+      keywords = {
+        FIX = {
+          icon = " ", -- icon used for the sign, and in search results
+          color = "error", -- can be a hex color, or a named color (see below)
+          alt = { "FIXME", "BUG", "FIXIT", "ISSUE" }, -- a set of other keywords that all map to this FIX keywords
+          -- signs = false, -- configure signs for some keywords individually
+        },
+        TODO = { icon = " ", color = "info" },
+        HACK = { icon = " ", color = "warning" },
+        WARN = { icon = " ", color = "warning", alt = { "WARNING", "XXX" } },
+        PERF = { icon = " ", alt = { "OPTIM", "PERFORMANCE", "OPTIMIZE" } },
+        NOTE = { icon = " ", color = "hint", alt = { "INFO" } },
+        TEST = { icon = "⏲ ", color = "test", alt = { "TESTING", "PASSED", "FAILED" } },
+      },
+      gui_style = {
+        fg = "NONE", -- The gui style to use for the fg highlight group.
+        bg = "BOLD", -- The gui style to use for the bg highlight group.
+      },
+      merge_keywords = true, -- when true, custom keywords will be merged with the defaults
+      -- highlighting of the line containing the todo comment
+      -- * before: highlights before the keyword (typically comment characters)
+      -- * keyword: highlights of the keyword
+      -- * after: highlights after the keyword (todo text)
+      highlight = {
+        multiline = true, -- enable multine todo comments
+        multiline_pattern = "^.", -- lua pattern to match the next multiline from the start of the matched keyword
+        multiline_context = 10, -- extra lines that will be re-evaluated when changing a line
+        before = "bg", -- "fg" or "bg" or empty
+        keyword = "wide", -- "fg", "bg", "wide", "wide_bg", "wide_fg" or empty. (wide and wide_bg is the same as bg, but will also highlight surrounding characters, wide_fg acts accordingly but with fg)
+        after = "bg", -- "fg" or "bg" or empty
+        pattern = [[.*<(KEYWORDS)\s*:]], -- pattern or table of patterns, used for highlighting (vim regex)
+        comments_only = true, -- uses treesitter to match keywords in comments only
+        max_line_len = 400, -- ignore lines longer than this
+        exclude = {}, -- list of file types to exclude highlighting
+      },
+      -- list of named colors where we try to extract the guifg from the
+      -- list of highlight groups or use the hex color if hl not found as a fallback
+      colors = {
+        error = { "DiagnosticError", "ErrorMsg", "#DC2626" },
+        warning = { "DiagnosticWarn", "WarningMsg", "#FBBF24" },
+        info = { "DiagnosticInfo", "#2563EB" },
+        hint = { "DiagnosticHint", "#10B981" },
+        default = { "Identifier", "#7C3AED" },
+        test = { "Identifier", "#FF00FF" },
+      },
+      search = {
+        command = "rg",
+        args = {
+          "--color=never",
+          "--no-heading",
+          "--with-filename",
+          "--line-number",
+          "--column",
+        },
+        -- regex that will be used to match keywords.
+        -- don't replace the (KEYWORDS) placeholder
+        --pattern = [[\b(KEYWORDS):]], -- ripgrep regex
+        pattern = [[\b(KEYWORDS)\b]], -- match without the extra colon. You'll likely get false positives
+      },
+    },
   },
 
   -- Plugin: folke/which-key.nvim
@@ -29,47 +137,6 @@ return {
   -- Description: A Neovim plugin for enhancing the command-line UI.
 
   -- Plugin: nvim-docs-view
-  {
-    "folke/noice.nvim",
-    config = function()
-      require("noice").setup({
-        cmdline = {
-          view = "cmdline", -- Usa la vista cmdline para la línea de comandos
-        },
-        presets = {
-          bottom_search = true, -- Habilita la vista de búsqueda en la parte inferior
-          command_palette = true, -- Habilita la vista de paleta de comandos
-          lsp_doc_border = true, -- Habilita el borde de la documentación LSP
-        },
-        routes = {
-          {
-            filter = {
-              event = "msg_show",
-              kind = "",
-              find = "completion request failed", -- Bloquea este mensaje específico
-            },
-            opts = { skip = true },
-          },
-          {
-            filter = {
-              event = "msg_show",
-              kind = "",
-              find = "codeium", -- Filtra cualquier mensaje que contenga "Codeium"
-            },
-            opts = { skip = true },
-          },
-          {
-            filter = {
-              event = "msg_show",
-              kind = "",
-              find = "unavailable", -- Filtra cualquier mensaje relacionado con "unavailable" o "connection reset"
-            },
-            opts = { skip = true },
-          },
-        },
-      })
-    end,
-  },
   -- URL: https://github.com/amrbashir/nvim-docs-view
   -- Description: A Neovim plugin for viewing documentation.
   {
@@ -85,13 +152,15 @@ return {
   -- Plugin: lualine.nvim
   -- URL: https://github.com/nvim-lualine/lualine.nvim
   -- Description: A blazing fast and easy to configure Neovim statusline plugin.
+  -- en tu archivo `lazy.lua` o donde configures tus plugins
+
   {
     "nvim-lualine/lualine.nvim",
     event = "VeryLazy", -- Load this plugin on the 'VeryLazy' event
     requires = { "nvim-tree/nvim-web-devicons", opt = true }, -- Optional dependency for icons
     opts = {
       options = {
-        theme = "molokai", -- Set the theme for lualine
+        theme = "rose-pine", -- Set the theme for lualine
         icons_enabled = true, -- Enable icons in the statusline
       },
       sections = {
@@ -102,12 +171,65 @@ return {
           },
         },
       },
+      extensions = {
+        "quickfix",
+        {
+          filetypes = { "oil" },
+          sections = {
+            lualine_a = {
+              mode,
+            },
+            lualine_b = {
+              function()
+                local ok, oil = pcall(require, "oil")
+                if not ok then
+                  return ""
+                end
+
+                ---@diagnostic disable-next-line: param-type-mismatch
+                local path = vim.fn.fnamemodify(oil.get_current_dir(), ":~")
+                return path .. " %m"
+              end,
+            },
+          },
+        },
+        {
+          filetypes = { "codecompanion" },
+          sections = {
+            lualine_a = {
+              mode,
+            },
+            lualine_b = {
+              codecompanion_adapter_name,
+            },
+            lualine_c = {
+              codecompanion_current_model_name,
+            },
+            lualine_x = {},
+            lualine_y = {
+              "progress",
+            },
+            lualine_z = {
+              "location",
+            },
+          },
+          inactive_sections = {
+            lualine_a = {},
+            lualine_b = {
+              codecompanion_adapter_name,
+            },
+            lualine_c = {},
+            lualine_x = {},
+            lualine_y = {
+              "progress",
+            },
+            lualine_z = {},
+          },
+        },
+      },
     },
   },
 
-  -- Plugin: incline.nvim
-  -- URL: https://github.com/b0o/incline.nvim
-  -- Description: A Neovim plugin for showing the current filename in a floating window.
   {
     "b0o/incline.nvim",
     event = "BufReadPre", -- Load this plugin before reading a buffer
@@ -130,30 +252,9 @@ return {
       })
     end,
   },
-
   -- Plugin: mini.nvim
   -- URL: https://github.com/echasnovski/mini.nvim
   -- Description: A collection of minimal, fast, and modular Lua plugins for Neovim.
-  {
-    "echasnovski/mini.nvim",
-    version = false, -- Use the latest version
-    config = function()
-      require("mini.animate").setup({
-        resize = {
-          enable = false, -- Disable resize animations
-        },
-        open = {
-          enable = false, -- Disable open animations
-        },
-        close = {
-          enable = false, -- Disable close animations
-        },
-        scroll = {
-          enable = false, -- Disable scroll animations
-        },
-      })
-    end,
-  },
 
   -- Plugin: zen-mode.nvim
   -- URL: https://github.com/folke/zen-mode.nvim
