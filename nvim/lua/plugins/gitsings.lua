@@ -16,7 +16,7 @@ return {
       delay = 0,
       ignore_whitespace = false,
     },
-    current_line_blame_formatter = "<author>: '<summary>' <-> [<author_time:%d-%m-%Y %H:%M>] ",
+    current_line_blame_formatter = "<author>-><committer>: '<summary>' <-> [<author_time:%d-%m-%Y %H:%M>] ",
 
     sign_priority = 6,
     update_debounce = 100,

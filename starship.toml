@@ -3,11 +3,11 @@ format = """\
 $os\
 $git_branch\
 $fill\
-$nodejs\
 $rust\
 $golang\
 $php\
 $bun\
+$nodejs\
 $java\
 $c\
 $conda\
@@ -17,8 +17,7 @@ $cmd_duration\
 $time\
 \n$character\
 """
-# Disable the blank line arrowt the beginning of the prompt
-add_newline = false
+add_newline = true
 
 # Command timeout
 command_timeout = 3600000
@@ -27,8 +26,7 @@ command_timeout = 3600000
 palette = "sakura"
 
 [fill]
-symbol = '  '
-
+symbol = ' '
 [palettes.sakura]
 arrow = "#c58ea7"      # ia: pink
 os = "#878fb9"         # va: blue
@@ -37,6 +35,59 @@ git = "#c58ea7"        # ia: pink
 duration = "#9e97d0"   # ca: purple
 text_color = "#c5a3a9" # na: text
 text_light = "#1c1a1c" # bl: background
+[palettes.catppuccin_mocha]
+rosewater = "#f5e0dc"
+flamingo = "#f2cdcd"
+pink = "#f5c2e7"
+mauve = "#cba6f7"
+red = "#f38ba8"
+maroon = "#eba0ac"
+peach = "#fab387"
+yellow = "#f9e2af"
+green = "#a6e3a1"
+teal = "#94e2d5"
+sky = "#89dceb"
+sapphire = "#74c7ec"
+blue = "#89b4fa"
+lavender = "#b4befe"
+text = "#cdd6f4"
+subtext1 = "#bac2de"
+subtext0 = "#a6adc8"
+overlay2 = "#9399b2"
+overlay1 = "#7f849c"
+overlay0 = "#6c7086"
+surface2 = "#585b70"
+surface1 = "#45475a"
+surface0 = "#313244"
+base = "#1e1e2e"
+mantle = "#181825"
+crust = "#11111b"
+
+[palettes.kanagawa]
+text = "#DCD7BA"
+red = "#E46876"
+green = "#98BB6C"
+yellow = "#FF9E3B"
+blue = "#7E9CD8"
+mauve = "#957FB8"
+pink = "#D27E99"
+teal = "#7AA89F"
+peach = "#FFA066"
+subtext0 = "#727169"
+overlay0 = "#2D4F67"
+rosewater = "#C0A36E"
+flamingo = "#D27E99"
+maroon = "#C34043"
+lavender = "#b8b4d0"
+subtext1 = "#C8C093"
+overlay2 = "#54546D"
+overlay1 = "#363646"
+surface2 = "#223249"
+surface1 = "#2A2A37"
+surface0 = "#1F1F28"
+base = "#1F1F28"
+mantle = "#16161D"
+crust = "#16161D"
 
 [character]
 success_symbol = "[ :$user](fg:#85B5BA)"
@@ -60,6 +111,11 @@ truncation_symbol = "/"
 truncate_to_repo = true
 read_only = "  "
 
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = "󰇚"
+"Music" = " "
+"Pictures" = " "
 
 [cmd_duration]
 format = "took [󱎫 $duration]($style) "
@@ -69,7 +125,7 @@ min_time = 500
 [git_branch]
 format = '  [($symbol$branch)]($style)'
 style = "bold fg:git"
-symbol = " "      
+symbol = " "
 
 [git_status]
 format = '[$all_status$ahead_behind ]($style)'
@@ -103,14 +159,16 @@ version_format = "${raw}"
 disabled = false
 
 [bun]
-version_format = "${raw}"
-symbol = " "
-format = '[[$symbol($version) ](fg:#DCD7BA)]($style)'
+version_format = "$raw"
+format = '[[ $symbol($version) ](fg:text)]($style)'
 disabled = false
 
 [nodejs]
 symbol = " "
-format = '[[ $symbol ($version) ](fg:#87a987)]($style)'
+format = '[[ $symbol($version) ](fg:green)]($style)'
+detect_files = []
+detect_extensions = []
+
 [rust]
 symbol = ""
 format = '[[ $symbol ($version) ](fg:#FF5D62)]($style)'
@@ -125,5 +183,5 @@ format = '[[ $symbol ($version) ](fg:#FF9E3B)]($style)'
 
 [time]
 disabled = false
-time_format = "%R"  # Hour:Minute Format
+time_format = "%R"                           # Hour:Minute Format
 format = '[[  $time ](fg:#8BA4B0)]($style)'

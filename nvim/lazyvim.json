@@ -16,7 +16,6 @@
     "lazyvim.plugins.extras.editor.leap",
     "lazyvim.plugins.extras.editor.mini-move",
     "lazyvim.plugins.extras.editor.navic",
-    "lazyvim.plugins.extras.editor.neo-tree",
     "lazyvim.plugins.extras.editor.outline",
     "lazyvim.plugins.extras.editor.overseer",
     "lazyvim.plugins.extras.editor.refactoring",
