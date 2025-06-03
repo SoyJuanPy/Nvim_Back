@@ -39,14 +39,14 @@ FOCUSED_BC="#94E2D5"	# Focused border color
 
 # Terminal font & size
 term_font_size="10"
-term_font_name="JetBrainsMono Nerd Font"
+term_font_name="FiraCode Nerd Font"
 
 # Picom options
 P_FADE="true"			# Fade true|false
 P_SHADOWS="true"		# Shadows true|false
-SHADOW_C="#000000"		# Shadow color
-P_CORNER_R="6"			# Corner radius (0 = disabled)
-P_BLUR="false"			# Blur true|false
+SHADOW_C="#F6F5F4"		# Shadow color
+P_CORNER_R="10"			# Corner radius (0 = disabled)
+P_BLUR="true"			# Blur true|false
 P_ANIMATIONS="@"		# (@ = enable) (# = disable)
 P_TERM_OPACITY="1.0"	# Terminal transparency. Range: 0.1 - 1.0 (1.0 = disabled)
 

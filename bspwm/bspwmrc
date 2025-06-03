@@ -12,6 +12,7 @@
 # Copyright (C) 2021-2025 gh0stzk <z0mbi3.zk@protonmail.com>
 # =============================================================
 /home/ikaros/.screenlayout/screen.sh
+./src/tempo
 # Set environment variables
 export PATH="$HOME/.config/bspwm/src:$PATH"
 export XDG_CURRENT_DESKTOP='bspwm'
