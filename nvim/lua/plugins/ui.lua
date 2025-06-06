@@ -53,21 +53,21 @@ return {
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = {
       signs = true, -- show icons in the signs column
-      sign_priority = 6, -- sign priority
+      sign_priority = 8, -- sign priority
       -- keywords recognized as todo comments
       keywords = {
         FIX = {
           icon = " ", -- icon used for the sign, and in search results
-          color = "error", -- can be a hex color, or a named color (see below)
+          color = "#DC2626", -- can be a hex color, or a named color (see below)
           alt = { "FIXME", "BUG", "FIXIT", "ISSUE" }, -- a set of other keywords that all map to this FIX keywords
           -- signs = false, -- configure signs for some keywords individually
         },
-        TODO = { icon = " ", color = "info" },
-        HACK = { icon = " ", color = "warning" },
-        WARN = { icon = " ", color = "warning", alt = { "WARNING", "XXX" } },
-        PERF = { icon = " ", alt = { "OPTIM", "PERFORMANCE", "OPTIMIZE" } },
-        NOTE = { icon = " ", color = "hint", alt = { "INFO" } },
-        TEST = { icon = "⏲ ", color = "test", alt = { "TESTING", "PASSED", "FAILED" } },
+        TODO = { icon = " ", color = "#2563EB" },
+        HACK = { icon = "󰈸", color = "#FBBF24" },
+        WARN = { icon = " ", color = "#FBBF24", alt = { "WARNING", "XXX" } },
+        PERF = { icon = "󰅒 ", color = "#7C3AED", alt = { "OPTIM", "PERFORMANCE", "OPTIMIZE" } },
+        NOTE = { icon = "󰍨 ", color = "#10B981", alt = { "INFO" } },
+        TEST = { icon = "󰙨", color = "#FF00FF", alt = { "TESTING", "PASSED", "FAILED" } },
       },
       gui_style = {
         fg = "NONE", -- The gui style to use for the fg highlight group.
@@ -82,10 +82,12 @@ return {
         multiline = true, -- enable multine todo comments
         multiline_pattern = "^.", -- lua pattern to match the next multiline from the start of the matched keyword
         multiline_context = 10, -- extra lines that will be re-evaluated when changing a line
-        before = "bg", -- "fg" or "bg" or empty
-        keyword = "wide", -- "fg", "bg", "wide", "wide_bg", "wide_fg" or empty. (wide and wide_bg is the same as bg, but will also highlight surrounding characters, wide_fg acts accordingly but with fg)
-        after = "bg", -- "fg" or "bg" or empty
-        pattern = [[.*<(KEYWORDS)\s*:]], -- pattern or table of patterns, used for highlighting (vim regex)
+        before = "",
+
+        keyword = "wide_bg", -- "fg", "bg", "wide", "wide_bg", "wide_fg" or empty. (wide and wide_bg is the same as bg, but will also highlight surrounding characters, wide_fg acts accordingly but with fg)
+        after = "fg", -- "fg" or "bg" or empty
+
+        pattern = [[.*(//*<(KEYWORDS)>)\s*:]], -- pattern or table of patterns, used for highlighting (vim regex)
         comments_only = true, -- uses treesitter to match keywords in comments only
         max_line_len = 400, -- ignore lines longer than this
         exclude = {}, -- list of file types to exclude highlighting
@@ -111,7 +113,7 @@ return {
         },
         -- regex that will be used to match keywords.
         -- don't replace the (KEYWORDS) placeholder
-        --pattern = [[\b(KEYWORDS):]], -- ripgrep regex
+        -- pattern = [[.*\(KEYWORDS\)\s*:]], -- ripgrep regex
         pattern = [[\b(KEYWORDS)\b]], -- match without the extra colon. You'll likely get false positives
       },
     },
@@ -160,7 +162,7 @@ return {
     requires = { "nvim-tree/nvim-web-devicons", opt = true }, -- Optional dependency for icons
     opts = {
       options = {
-        theme = "rose-pine", -- Set the theme for lualine
+        theme = "molokai", -- Set the theme for lualine
         icons_enabled = true, -- Enable icons in the statusline
       },
       sections = {
@@ -308,20 +310,17 @@ return {
           { section = "startup" },
         },
         preset = {
-          header = [[
-                    ░░░░░░      ░░░░░░                        
-                  ░░░░░░░░░░  ░░░░░░░░░░                      
-                ░░░░░░░░░░░░░░░░░░░░░░░░░░                    
-              ░░░░░░░░░░▒▒▒▒░░▒▒▒▒░░░░░░░░░░                  
-  ░░░░      ░░░░░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░        ░░░░    
-▒▒░░      ░░░░░░▒▒▒▒▒▒▒▒▒▒██▒▒██▒▒▒▒▒▒▒▒▒▒░░░░░░        ▒▒░░  
-▒▒░░    ░░░░░░░░▒▒▒▒▒▒▒▒▒▒████▒▒████▒▒▒▒▒▒▒▒▒▒░░░░░░░░  ▒▒░░▒ 
-▒▒▒▒░░░░░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒██████▒▒██████▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░▒▒▒ 
-██▒▒▒▒▒▒▒▒▒▒▒▒▒▒██▒▒▒▒██████▓▓██▒▒██████▒▒▓▓██▒▒▒▒▒▒▒▒▒▒▒▒▒▒█ 
-████▒▒▒▒▒▒████▒▒▒▒██████████  ██████████▒▒▒▒████▒▒▒▒▒▒▒▒██    
-  ████████████████████████      ████████████████████████      
-    ██████████████████              ██████████████████        
-        ██████████                      ██████████            
+          header = [[                                                                       
+	                                                                     
+	       ████ ██████           █████      ██                     
+	      ███████████             █████                             
+	      █████████ ███████████████████ ███   ███████████   
+	     █████████  ███    █████████████ █████ ██████████████   
+	    █████████ ██████████ █████████ █████ █████ ████ █████   
+	  ███████████ ███    ███ █████████ █████ █████ ████ █████  
+	 ██████  █████████████████████ ████ █████ █████ ████ ██████ 
+	
+
 ]],
           -- stylua: ignore
           ---@type snacks.dashboard.Item[]
